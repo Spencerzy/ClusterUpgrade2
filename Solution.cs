@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using static ClusterUpgrade2.SearchState;
 
 namespace ClusterUpgrade2
 {
-	class SearchState
+	public class SearchState
 	{
 		public HashSet<Group> fixedGroups;
 
@@ -39,10 +41,87 @@ namespace ClusterUpgrade2
 
 			this.notFixedGroups = nodeHash.Select(kvp => kvp.Value).OrderByDescending(grp => grp.totalAppCnt).ToList();
 		}
+
+		public class SearchStateComparer : IComparer<SearchState>
+		{
+			public int Compare(SearchState s1, SearchState s2)
+			{
+				if (s1.notFixedGroups.Count() < s2.notFixedGroups.Count()) return -1;
+				else if (s1.notFixedGroups.Count() == s2.notFixedGroups.Count()) return 0;
+				return 1;
+			}
+		}
 	}
 
-	class Solution
+	public class Solution
 	{
+		public List<List<string>> GetSolution(List<string> nodes, List<Application> apps, Dictionary<string, int> budgets, int queueMaxSize = 10000, int newStateLimit = -1, int timeoutMinutes = 10)
+		{
+			var startTime = DateTime.Now;
+            C5.IntervalHeap<SearchState> q = new C5.IntervalHeap<SearchState>(new SearchStateComparer());
+			HashSet<SearchState> visited = new HashSet<SearchState>();
+
+			ans = nodes.Count();
+			SearchState ansState = new SearchState(nodes, apps);
+			visited.Add(ansState);
+			q.Add(ansState);
+			while (q.Count() > 0)
+			{
+				// Set timeout
+				if (DateTime.Now > startTime.AddMinutes(timeoutMinutes))
+                {
+					break;
+                }
+
+				SearchState state = q.FindMin();q.DeleteMin();
+
+				if (state.notFixedGroups.Count == 0) continue;
+
+				bool canMerge = false;
+				Group group1 = state.notFixedGroups[0];
+				int newStateCnt = 0;
+				for (int i = 1; i < state.notFixedGroups.Count(); ++i)
+				{
+					var group2 = state.notFixedGroups[i];
+					if (IfCanMergeGroups(group1, group2, budgets))
+					{
+						canMerge = true;
+						SearchState newState = Merge(state, group1, group2);
+
+						if (visited.Contains(newState))
+                        {
+							continue;
+                        }
+
+						visited.Add(newState);
+						q.Add(newState);
+						if (q.Count() > queueMaxSize) q.DeleteMax();
+
+						if (newState.fixedGroups.Count() + newState.notFixedGroups.Count() < ans)
+						{
+							ans = newState.fixedGroups.Count() + newState.notFixedGroups.Count();
+							ansState = newState;
+						}
+
+						newStateCnt++;
+						if (newStateCnt == newStateLimit) break;
+					}
+				}
+
+				if (!canMerge)
+				{
+					state.fixedGroups.Add(group1);
+					state.notFixedGroups.RemoveAt(0);
+					q.Add(state);
+				}
+			}
+
+			var ret = new List<List<string>>();
+			ret.AddRange(ansState.fixedGroups.Select(_ => _.nodeList.ToList()));
+			ret.AddRange(ansState.notFixedGroups.Select(_ => _.nodeList.ToList()));
+			return ret;
+		}
+
 		private int ans;
 
 		private bool IfCanMergeGroups(Group g1, Group g2, Dictionary<string, int> budgets)
@@ -85,65 +164,6 @@ namespace ClusterUpgrade2
 				ret.notFixedGroups.Add(group);
 			}
 
-			return ret;
-		}
-
-		public List<List<string>> GetSolution(List<string> nodes, List<Application> apps, Dictionary<string, int> budgets)
-		{
-			Queue<SearchState> q = new Queue<SearchState>();
-			HashSet<SearchState> visited = new HashSet<SearchState>();
-
-			ans = nodes.Count();
-			SearchState ansState = new SearchState(nodes, apps);
-			visited.Add(ansState);
-			q.Enqueue(ansState);
-			while (q.Count() > 0)
-			{
-				SearchState state = q.Dequeue();
-
-				if (state.notFixedGroups.Count == 0) continue;
-
-				bool canMerge = false;
-				Group group1 = state.notFixedGroups[0];
-				int newStateCnt = 0;
-				for (int i = 1; i < state.notFixedGroups.Count(); ++i)
-				{
-					var group2 = state.notFixedGroups[i];
-					if (IfCanMergeGroups(group1, group2, budgets))
-					{
-						canMerge = true;
-						SearchState newState = Merge(state, group1, group2);
-
-						if (visited.Contains(newState))
-                        {
-							continue;
-                        }
-
-						visited.Add(newState);
-						q.Enqueue(newState);
-
-						if (newState.fixedGroups.Count() + newState.notFixedGroups.Count() < ans)
-						{
-							ans = newState.fixedGroups.Count() + newState.notFixedGroups.Count();
-							ansState = newState;
-						}
-
-						newStateCnt++;
-						if (newStateCnt == 2) break;
-					}
-				}
-
-				if (!canMerge)
-				{
-					state.fixedGroups.Add(group1);
-					state.notFixedGroups.RemoveAt(0);
-					q.Enqueue(state);
-				}
-			}
-
-			var ret = new List<List<string>>();
-			ret.AddRange(ansState.fixedGroups.Select(_ => _.nodeList.ToList()));
-			ret.AddRange(ansState.notFixedGroups.Select(_ => _.nodeList.ToList()));
 			return ret;
 		}
 	};

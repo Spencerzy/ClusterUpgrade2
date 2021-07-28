@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 
 namespace ClusterUpgrade2
 {
@@ -10,44 +9,6 @@ namespace ClusterUpgrade2
     {
         static void Main(string[] args)
         {
-            //var nodes = new List<string> { "node1", "node2", "node3" };
-            //var apps = new List<Application> {
-            //    new Application()
-            //    {
-            //        appName = "app1",
-            //        nodeName = "node1",
-            //    },
-            //    new Application()
-            //    {
-            //        appName = "app1",
-            //        nodeName = "node2",
-            //    } ,
-            //    new Application()
-            //    {
-            //        appName = "app2",
-            //        nodeName = "node1",
-            //    } ,
-            //    new Application()
-            //    {
-            //        appName = "app2",
-            //        nodeName = "node2",
-            //    } ,
-            //    new Application()
-            //    {
-            //        appName = "app3",
-            //        nodeName = "node2",
-            //    },
-            //    new Application()
-            //    {
-            //        appName = "app3",
-            //        nodeName = "node3",
-            //    } };
-            //var budget = new Dictionary<string, int>()
-            //{
-            //    {"app1", 1},
-            //    {"app2", 1 },
-            //    {"app3", 1 }
-            //};
             Solution s = new Solution();
 
             var (nodes, apps, budgets) = GenereateTest(5000, 4000);
@@ -64,101 +25,6 @@ namespace ClusterUpgrade2
             {
                 file.WriteLine(JsonConvert.SerializeObject(ans));
             };
-
-            //var nodes = new List<string> { "node1", "node2", "node3","node4", "node5"};
-            //var apps = new List<Application> {
-            //    new Application()
-            //    {
-            //        appName = "app1",
-            //        nodeName = "node2",
-            //    },
-            //    new Application()
-            //    {
-            //        appName = "app1",
-            //        nodeName = "node3",
-            //    } ,
-            //                    new Application()
-            //    {
-            //        appName = "app1",
-            //        nodeName = "node5",
-            //    } ,
-            //    new Application()
-            //    {
-            //        appName = "app2",
-            //        nodeName = "node1",
-            //    } ,
-            //    new Application()
-            //    {
-            //        appName = "app2",
-            //        nodeName = "node2",
-            //    } ,
-            //                    new Application()
-            //    {
-            //        appName = "app2",
-            //        nodeName = "node3",
-            //    } ,
-            //                                    new Application()
-            //    {
-            //        appName = "app2",
-            //        nodeName = "node4",
-            //    } ,
-            //                                                    new Application()
-            //    {
-            //        appName = "app2",
-            //        nodeName = "node5",
-            //    } ,
-            //    new Application()
-            //    {
-            //        appName = "app3",
-            //        nodeName = "node5",
-            //    },
-            //    new Application()
-            //    {
-            //        appName = "app4",
-            //        nodeName = "node5",
-            //    } ,
-            //    new Application()
-            //    {
-            //        appName = "app4",
-            //        nodeName = "node1",
-            //    },
-            //    new Application()
-            //    {
-            //        appName = "app4",
-            //        nodeName = "node2",
-            //    },
-            //    new Application()
-            //    {
-            //        appName = "app5",
-            //        nodeName = "node1",
-            //    },
-            //    new Application()
-            //    {
-            //        appName = "app5",
-            //        nodeName = "node2",
-            //    },                new Application()
-            //    {
-            //        appName = "app5",
-            //        nodeName = "node3",
-            //    },                new Application()
-            //    {
-            //        appName = "app5",
-            //        nodeName = "node4",
-            //    },                new Application()
-            //    {
-            //        appName = "app5",
-            //        nodeName = "node5",
-            //    },};
-            //var budget = new Dictionary<string, int>()
-            //{
-            //    {"app1", 2},
-            //    {"app2", 4 },
-            //    {"app3", 1 },
-            //    {"app4", 3 },
-            //    {"app5", 5 },
-            //};
-            //var ans = s.GetSolution(nodes, apps, budget);
-            //var i = 2;
         }
 
 
